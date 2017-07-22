@@ -46,14 +46,14 @@
           </li>
         </ul>
       </section> -->
-        <footer class="footer">
+        <footer class="footer" v-show="todos.length">
             <span class="todo-count">
-          <strong></strong> left
+          <strong>{{remaining}}</strong> 
         </span>
             <ul class="filters">
-                <li><a href="javascript:;" @click="visibility =='all'">All</a></li>
-                <li><a href="javascript:;" @click="visibility =='active'">Active</a></li>
-                <li><a href="javascript:;" @click="visibility =='completed'">Completed</a></li>
+                <li><a href="javascript:;" :class="{selected: visibility == 'all'}" @click="visibility ='all'">All</a></li>
+                <li><a href="javascript:;" :class="{selected: visibility=='active'}" @click="visibility ='active'">Active</a></li>
+                <li><a href="javascript:;" :class="{selected: visibility=='completed'}" @click="visibility ='completed'">Completed</a></li>
             </ul>
             <button class="clear-completed">
           Clear completed
@@ -71,7 +71,7 @@
         var data = {
             newTodo: '',
             todos: [],
-            visibility: 'all'
+            visibility: 'all',
         }
 
         var filters = {
@@ -99,6 +99,9 @@
                 filteredTodos: function() {
                     return filters[this.visibility](this.todos)
                         //filters['all'],filters['active'],filters['completed']
+                },
+                remaining: function() {
+                    return filters.active(this.todos).length + ' item'
                 }
             },
             methods: {
