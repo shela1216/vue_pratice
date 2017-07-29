@@ -42,12 +42,22 @@
             }
         }
     }
+    var navbarComponent = {
+        template: `
+      <div class="navbar">
+                <a href="javascript:;" class="left" @click="$emit('prev')">Prev</a>
+                <a href="javascript:;" class="right" @click="$emit('nextpage')">Next</a>
+            </div>
+      `
+
+    }
     var vm = new Vue({
         el: "#app",
         data: data,
         components: {
             slideComponent: slideComponent,
-            navComponent: navComponent
+            navComponent: navComponent,
+            navbarComponent: navbarComponent
         },
         methods: {
             changeHandler: function(index) {
@@ -55,6 +65,9 @@
             },
             nextHandler: function() {
                 this.active = (this.active + 1) % this.imgList.length
+            },
+            prevHandler: function() {
+                this.active = (this.active - 1 + this.imgList.length) % this.imgList.length
             }
         }
     })
