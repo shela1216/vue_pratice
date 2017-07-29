@@ -18,37 +18,22 @@
             <h1>todos</h1>
             <input class="new-todo" autofocus autocomplete="off" placeholder="What needs to be done?" v-model="newTodo" @keyup.enter="addTodo">
         </header>
-        <!-- <section class="main" v-show="todos.length">
-        <input class="toggle-all" type="checkbox" v-model="allDone">
-        <ul class="todo-list">
-          <li class="todo"
-            v-for="todo in filteredTodos"
-            :class="{
-              completed: todo.completed,
-              editing: todo == editedTodo}">
-            <div class="view">
-              <input class="toggle" type="checkbox"
-                v-model="todo.completed">
-              <label @dblclick="editTodo(todo)">
-                {{todo.title}}
-              </label>
-              <button class="destroy"
-                @click="removeTodo(todo)">
-              </button>
-            </div>
-            <input class="edit" type="text"
-              v-model="todo.title"
-              v-if="todo == editedTodo"
-              v-todo-focus
-              @blur="doneEdit(todo)"
-              @keyup.enter="doneEdit(todo)"
-              @keyup.esc="cancelEdit(todo)">
-          </li>
-        </ul>
-      </section> -->
+        <section class="main" v-show="todos.length">
+            <input class="toggle-all" type="checkbox" v-model="allDone">
+            <ul class="todo-list">
+                <li class="todo" :class="{completed:item.completed,editing:item==editingTodo}" v-for="item in filteredTodos">
+                    <div class="view">
+                        <input class="toggle" type="checkbox" v-model="item.completed">
+                        <label @dblclick="editTodo(item)"> {{item.title}}</label>
+                        <button class="destroy" @click="removeTodo(item)"> </button>
+                    </div>
+                    <input v-todo-focus class="edit" type="text" v-model="item.title" v-if="item ==editingTodo" @blur="doneEdit(item)" @keyup.enter="doneEdit(item)" @keyup.esc="cancelEdit(item)">
+                </li>
+            </ul>
+        </section>
         <footer class="footer" v-show="todos.length">
             <span class="todo-count">
-          <strong>{{remaining}}</strong> 
+          <strong>{{remaining}}</strong> {{pluralize('item',remaining)}}
         </span>
             <ul class="filters">
                 <li><a href="javascript:;" :class="{selected: visibility == 'all'}" @click="visibility ='all'">All</a></li>
@@ -72,6 +57,7 @@
             newTodo: '',
             todos: [],
             visibility: 'all',
+            editingTodo: null
         }
 
         var filters = {
@@ -101,10 +87,31 @@
                         //filters['all'],filters['active'],filters['completed']
                 },
                 remaining: function() {
-                    return filters.active(this.todos).length + ' item'
+                    return filters.active(this.todos).length
+                },
+                // allDone: function() {
+
+                //     return this.remaining == 0
+                // }
+                allDone: {
+                    get: function() {
+                        return this.remaining == 0
+                    },
+                    set: function(value) {
+                        this.todos.forEach(function(todo) {
+                            todo.completed = value;
+                        });
+                    }
                 }
             },
             methods: {
+                removeTodo: function(todo) {
+                    var index = this.todos.indexOf(todo);
+                    this.todos.splice(index, 1);
+                },
+                pluralize: function(word, count) {
+                    return word + (count == 1 ? '' : 's')
+                },
                 addTodo: function() {
                     let value = this.newTodo && this.newTodo.trim()
 
@@ -117,6 +124,35 @@
                         completed: false
                     })
                     this.newTodo = ''
+                },
+                editTodo: function(todo) {
+                    this.beforeEditCache = todo.title;
+                    this.editingTodo = todo;
+                },
+                doneEdit: function(todo) {
+                    if (!this.editingTodo) {
+                        return
+                    }
+                    this.editingTodo = null;
+                    todo.title = todo.title.trim();
+                    if (!todo.title) {
+                        // this.removeTodo(todo)
+                        todo.title = this.beforeEditCache;
+                    }
+                },
+                cancelEdit: function(todo) {
+                    if (!this.editingTodo) {
+                        return
+                    }
+                    this.editingTodo = null
+                    todo.title = this.beforeEditCache
+                }
+            },
+            directives: {
+                todoFocus: {
+                    inserted: function(el) {
+                        el.focus();
+                    }
                 }
             }
         })
