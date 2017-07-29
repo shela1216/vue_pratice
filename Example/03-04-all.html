@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>03-04-slideShow</title>
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/layout.css">
+    <link rel="stylesheet" type="text/css" href="css/03-04-slideShow.css">
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <div class="container" v-if="imgList && imgList.length">
+            <slide-component :img-list="imgList" :active="active" @click.native="nextHandler"></slide-component>
+            <nav-component v-if="type==1" :total="imgList.length" :active="active" @change="changeHandler"></nav-component>
+            <nav2-component @next="nextHandler" @prev="prevHandler" v-else></nav2-component>
+        </div>
+    </div>
+    <script src="js/vue.js"></script>
+    <script src="js/superagent.js"></script>
+    <script type="text/javascript">
+        (function(window) {
+
+            var data = {
+                active: 0,
+                type: 1,
+                imgList: [
+                    "./images/children/0.jpg",
+                    "./images/children/1.jpg",
+                    "./images/children/2.jpg",
+                    "./images/children/3.jpg",
+                    "./images/children/4.jpg",
+                    "./images/children/5.jpg",
+                    "./images/children/6.jpg",
+                    "./images/children/7.jpg"
+                ]
+            }
+
+            var slideComponent = {
+                template: `
+          <div class="img" :style="{left:-100*active+'%'}">
+            <img  v-for="(item,index) in imgList" :src="item" :style="{left:100*index+'%'}">
+          </div>
+          `,
+                props: ['active', 'imgList']
+            }
+
+            var navComponent = {
+                template: `
+          <div class="nav">
+            <a href="javascript:;"
+            :class="{active:active == index-1}"
+            v-for="index in total"
+            @click="clickHandler(index-1)"
+            >
+            </a>
+          </div>
+          `,
+                props: ['active', 'total'],
+                methods: {
+                    clickHandler: function(index) {
+                        this.$emit('change', index)
+                    }
+                }
+            }
+
+            var nav2Component = {
+                template: `
+          <div>
+            <a href="javascript:;" @click="$emit('prev')">PREV</a>
+            <a href="javascript:;" @click="$emit('next')">NEXT</a>
+          </div>
+          `
+            }
+
+
+
+            new Vue({
+                el: "#app",
+                data: data,
+                components: {
+                    slideComponent: slideComponent,
+                    navComponent: navComponent,
+                    nav2Component: nav2Component
+                },
+                methods: {
+                    changeHandler: function(index) {
+                        this.active = index
+                    },
+                    nextHandler: function() {
+                        this.active = (this.active + 1) % this.imgList.length
+                    },
+                    prevHandler: function() {
+                        this.active = (this.active - 1 + this.imgList.length) % this.imgList.length
+                    }
+                }
+            })
+
+        })(window)
+    </script>
+</body>
+
+</html>
