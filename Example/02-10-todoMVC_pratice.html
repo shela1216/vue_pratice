@@ -40,7 +40,7 @@
                 <li><a href="javascript:;" :class="{selected: visibility=='active'}" @click="visibility ='active'">Active</a></li>
                 <li><a href="javascript:;" :class="{selected: visibility=='completed'}" @click="visibility ='completed'">Completed</a></li>
             </ul>
-            <button class="clear-completed">
+            <button class="clear-completed" @click="removeComplete">
           Clear completed
         </button>
         </footer>
@@ -146,6 +146,9 @@
                     }
                     this.editingTodo = null
                     todo.title = this.beforeEditCache
+                },
+                removeComplete: function() {
+                    this.todos = filters.active(this.todos)
                 }
             },
             directives: {
