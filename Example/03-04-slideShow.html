@@ -7,25 +7,126 @@
     <link rel="stylesheet" type="text/css" href="css/normalize.css">
     <link rel="stylesheet" type="text/css" href="css/layout.css">
     <link rel="stylesheet" type="text/css" href="css/03-04-slideShow.css">
+
+    <style>
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity .4s;
+        }
+        
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0;
+        }
+    </style>
 </head>
 
 <body>
     <div id="app" v-cloak>
         <div class="container" v-if="imgList.length">
-            <slide-component :active="active" :list="imgList" @next="nextHandler">
+            <slide-component :active="active" :img-list="imgList" @next="nextHandler">
             </slide-component>
-            <!-- <slide-component :active="active" :list="imgList" @click.native="nextHandler">
-            </slide-component> -->
-            <!-- <nav-component :active="active" :total="imgList.length" @click.native="changeHandler">
-            </nav-component> -->
+
             <nav-component :active="active" :total="imgList.length" @change="changeHandler">
             </nav-component>
-            <navbar-component @nextpage="nextHandler" @prev="prevHandler"></navbar-component>
+
+            <navbar-component @next="nextHandler" @prev="prevHandler"></navbar-component>
+        </div>
+        <div class="container" v-if="imgList.length">
+            <alpha-component :active="active" :list="imgList" @next="nextHandler"></alpha-component>
         </div>
     </div>
     <script src="js/vue.js"></script>
     <script src="js/superagent.js"></script>
-    <script src="js/03-04-slideShow.js"></script>
+    <!-- <script src="js/03-04-slideShow.js"></script> -->
+    <script>
+        var data = {
+            active: 0,
+            imgList: [
+                "./images/children/0.jpg",
+                "./images/children/1.jpg",
+                "./images/children/2.jpg",
+                "./images/children/3.jpg",
+                "./images/children/4.jpg",
+                "./images/children/5.jpg",
+                "./images/children/6.jpg",
+                "./images/children/7.jpg"
+            ]
+        }
+        var slideComponent = {
+            props: ['active', 'imgList'],
+            template: `
+                <div class="img" :style="{left:-100*active+'%'}"
+                @click="nextHandler">
+                <img :src="item" v-for="(item,index) in imgList"
+                    :style="{left:100*index+'%'}">
+                </div>
+            `,
+            methods: {
+                nextHandler: function() {
+                    this.$emit('next')
+                }
+            }
+        }
+        var alphaComponent = {
+            props: ['active', 'list'],
+            template: `
+                <div class="img" @click="nextHandler">
+                    <transition name="fade" v-for="(item,index) in list" appear>
+                    <img :src="item" v-show="active == index">
+                    </transition>
+                </div>
+                `,
+            methods: {
+                nextHandler: function() {
+                    this.$emit('next')
+                }
+            }
+        }
+        var navComponent = {
+            props: ['active', 'total'],
+            template: `
+                <div class="nav">
+                    <a href="javascript:;" v-for="index in total" :class="{active : active == index-1}" @click="clickHandler(index-1)"></a>
+                </div>
+            `,
+            methods: {
+                clickHandler: function(index) {
+                    this.$emit('change', index);
+                }
+            }
+        }
+        var navbarComponent = {
+            template: `
+            <div class="navbar">
+                <a href="javascript:;" @click="$emit('prev')">PREV</a>
+                <a href="javascript:;" @click="$emit('next')">NEXT</a>                    
+            </div>
+            `
+        }
+        new Vue({
+            el: '#app',
+            data: data,
+            components: {
+                slideComponent: slideComponent,
+                navComponent: navComponent,
+                navbarComponent: navbarComponent,
+                alphaComponent: alphaComponent
+
+            },
+            methods: {
+                changeHandler: function(index) {
+                    this.active = index
+                },
+                nextHandler: function() {
+                    this.active = (this.active + 1) % this.imgList.length
+                },
+                prevHandler: function() {
+                    this.active = (this.active - 1 + this.imgList.length) % this.imgList.length
+                }
+            }
+        })
+    </script>
 </body>
 
 </html>

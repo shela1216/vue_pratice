@@ -24,7 +24,7 @@
                 <li class="todo" :class="{completed:item.completed,editing:item==editingTodo}" v-for="item in filteredTodos">
                     <div class="view">
                         <input class="toggle" type="checkbox" v-model="item.completed">
-                        <label @dblclick="editTodo(item)"> {{item.title}}</label>
+                        <label @click="editTodo(item)"> {{item.title}}</label>
                         <button class="destroy" @click="removeTodo(item)"> </button>
                     </div>
                     <input v-todo-focus class="edit" type="text" v-model="item.title" v-if="item ==editingTodo" @blur="doneEdit(item)" @keyup.enter="doneEdit(item)" @keyup.esc="cancelEdit(item)">
